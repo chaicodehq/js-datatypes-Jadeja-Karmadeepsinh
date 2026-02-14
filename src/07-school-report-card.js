@@ -16,7 +16,7 @@
  *     - lowestSubject: subject name with lowest marks
  *     - passedSubjects: array of subject names where marks >= 40 (use filter)
  *     - failedSubjects: array of subject names where marks < 40
- *     - subjectCount: total number of subjects (Object.keys().length)
+ *     - subjectCount: total number of subjects (Object.keys().length) 
  *   - Hint: Use Object.keys(), Object.values(), Object.entries(),
  *     reduce(), filter(), map(), Math.max(), Math.min(), toFixed()
  *
@@ -42,4 +42,47 @@
  */
 export function generateReportCard(student) {
   // Your code here
+  if(typeof student !== "object" || student === null) return null;
+  if(typeof student.name !== "string" || student.name === "") return null;
+  if(typeof student.marks !== "object" || Object.keys(student.marks).length === 0) return null;
+
+  for(const val of Object.values(student.marks)){
+    if(typeof val !== "number" || val < 0 || val > 100) return null;
+  }
+
+  const marks = Object.values(student.marks);
+  const entries = Object.entries(student.marks);
+  const totalMarks = marks.reduce((acc, mark) => acc + mark, 0);
+  const percentage = parseFloat(((totalMarks / (marks.length * 100)) * 100).toFixed(2));
+
+  let grade;
+  if(percentage >= 90){
+    grade = "A+";
+  }else if(percentage >= 80){
+    grade = "A";
+  }else if(percentage >= 70){
+    grade = "B";
+  }else if(percentage >= 60){
+    grade = "C";
+  }else if(percentage >= 40){
+    grade = "D";
+  }else{
+    grade = "F";
+  }
+  let highestSubject = entries[0][0];
+  let lowestSubject = entries[0][0];
+
+  for (const [subject, mark] of entries) {
+    if(mark > student.marks[highestSubject]){
+      highestSubject = subject;
+    }
+    if(mark < student.marks[lowestSubject]){
+      lowestSubject = subject;
+    }
+  }
+
+  const passedSubjects = entries.filter(([subject, mark]) => mark >= 40).map(([subject]) => subject);
+  const failedSubjects = entries.filter(([subject, mark]) => mark < 40).map(([subject]) => subject);
+
+  return { name: student.name, totalMarks: totalMarks, percentage: percentage, grade: grade, highestSubject: highestSubject, lowestSubject: lowestSubject, passedSubjects: passedSubjects, failedSubjects: failedSubjects, subjectCount: marks.length };
 }
